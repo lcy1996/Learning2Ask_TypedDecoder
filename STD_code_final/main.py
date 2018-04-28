@@ -19,20 +19,20 @@ except:
 question_words = []
 
 tf.app.flags.DEFINE_boolean("is_train", True, "Set to False to inference.")
-tf.app.flags.DEFINE_integer("symbols", 40000, "vocabulary size.")#modify
+tf.app.flags.DEFINE_integer("symbols", 20000, "vocabulary size.")#modify
 tf.app.flags.DEFINE_integer("embed_units", 100, "Size of word embedding.")
-tf.app.flags.DEFINE_integer("units", 1024, "Size of each model layer.")
+tf.app.flags.DEFINE_integer("units", 512, "Size of each model layer.")
 tf.app.flags.DEFINE_integer("layers", 4, "Number of layers in the model.")
-tf.app.flags.DEFINE_integer("batch_size", 100, "Batch size to use during training.")
+tf.app.flags.DEFINE_integer("batch_size", 50, "Batch size to use during training.")
 tf.app.flags.DEFINE_string("data_dir", "./data", "Data directory")
 tf.app.flags.DEFINE_string("train_dir", "./train", "Training directory.")
 tf.app.flags.DEFINE_integer("per_checkpoint", 1000, "How many steps to do per checkpoint.")
-tf.app.flags.DEFINE_integer("inference_version", 0, "The version for inferencing.")
+tf.app.flags.DEFINE_integer("check_version", 0, "The version for continuing training or for inferencing.")
 tf.app.flags.DEFINE_boolean("log_parameters", True, "Set to True to show the parameters")
 tf.app.flags.DEFINE_string("inference_path", "", "Set filename of inference, default isscreen")
 tf.app.flags.DEFINE_string("PMI_path", "./PMI", "PMI director.") 
-tf.app.flags.DEFINE_integer("keywords_per_sentence", 5, "How many keywords will be included")
-tf.app.flags.DEFINE_boolean("question_data", True, "Determine whether to use question data.") #for STD we always use question word and didn't apply pretrain
+tf.app.flags.DEFINE_integer("keywords_per_sentence", 5, "How many keywords will be included") #for STD we don't need this flag
+tf.app.flags.DEFINE_boolean("question_data", True, "Determine whether to use question data.") #for STD we always use question word and didn't apply pretrain, please always set to True
 FLAGS = tf.app.flags.FLAGS
 
 def load_data(path, fname):
@@ -54,7 +54,8 @@ def build_vocab(path, data):
     if FLAGS.question_data:
         print("Creating vocabulary...")
         vocab = {}
-
+        
+        #the classifier is deprecated because of the bad performance
         #build classifier
         question_classifier = {}
         question_classifier[question_words[0]] = 0
@@ -320,8 +321,8 @@ with tf.Session(config=config) as sess:
         if FLAGS.log_parameters:
             model.print_parameters()
 
-        if FLAGS.inference_version > 0:
-            model_path = '%s/checkpoint-%08d' % (FLAGS.train_dir, FLAGS.inference_version)
+        if FLAGS.check_version > 0:
+            model_path = '%s/checkpoint-%08d' % (FLAGS.train_dir, FLAGS.check_version)
             print("Reading model parameters from %s" % FLAGS.train_dir)
             model.saver.restore(sess, model_path)
             model.symbol2index.init.run()
@@ -372,10 +373,10 @@ with tf.Session(config=config) as sess:
                 vocab=vocab,
                 embed=embed)#modify
 
-        if FLAGS.inference_version == 0:
+        if FLAGS.check_version == 0:
             model_path = tf.train.latest_checkpoint(FLAGS.train_dir)
         else:
-            model_path = '%s/checkpoint-%08d' % (FLAGS.train_dir, FLAGS.inference_version)
+            model_path = '%s/checkpoint-%08d' % (FLAGS.train_dir, FLAGS.check_version)
         print('restore from %s' % model_path)
         model.saver.restore(sess, model_path)
         model.symbol2index.init.run()

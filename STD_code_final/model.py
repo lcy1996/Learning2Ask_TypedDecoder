@@ -120,7 +120,7 @@ class Seq2SeqModel(object):
                     self.decoder_input, self.responses_length, scope="decoder")
             # calculate the loss of decoder
             self.decoder_loss, self.ppl_loss = sampled_sequence_loss(self.decoder_output,
-                    self.responses_target, self.decoder_mask, self.keyword_tensor, self.word_type)#modified by lcy 2017.8.8
+                    self.responses_target, self.decoder_mask, self.keyword_tensor, self.word_type)
 
             # building graph finished and get all parameters
             self.params = tf.trainable_variables()
