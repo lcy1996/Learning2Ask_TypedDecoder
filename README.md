@@ -32,7 +32,7 @@ Options(=[default_value]):
 * ```--log_parameters=True``` Set to True to show the parameters.
 * ```--inference_path=""``` Set filename of inference, empty for screen input.
 * ```--PMI_path=./PMI``` PMI director.
-* ```--keywords_per_sentence=12``` How many keywords will be included.
+* ```--keywords_per_sentence=20``` How many keywords will be included.
 * ```--question_data=True``` **(Deprecated, please set to True)** An unused option in the final version.
 
 The file ```train.sh``` and ```infer.sh``` contain example commands for training and inference. You can use them with the ```sh``` command.

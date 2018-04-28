@@ -28,7 +28,7 @@ tf.app.flags.DEFINE_integer("check_version", 0, "The version for continuing trai
 tf.app.flags.DEFINE_boolean("log_parameters", True, "Set to True to show the parameters")
 tf.app.flags.DEFINE_string("inference_path", "", "Set filename of inference, empty for screen input")
 tf.app.flags.DEFINE_string("PMI_path", "./PMI", "PMI director.") 
-tf.app.flags.DEFINE_integer("keywords_per_sentence", 12, "How many keywords will be included")
+tf.app.flags.DEFINE_integer("keywords_per_sentence", 20, "How many keywords will be included")
 tf.app.flags.DEFINE_boolean("question_data", True, "(Deprecated, please set to True)An unused option in the final version.")
 FLAGS = tf.app.flags.FLAGS
 
