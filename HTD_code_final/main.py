@@ -24,12 +24,12 @@ tf.app.flags.DEFINE_integer("batch_size", 50, "Batch size to use during training
 tf.app.flags.DEFINE_string("data_dir", "./data", "Data directory") 
 tf.app.flags.DEFINE_string("train_dir", "./train", "Training directory.") 
 tf.app.flags.DEFINE_integer("per_checkpoint", 1000, "How many steps to do per checkpoint.")
-tf.app.flags.DEFINE_integer("inference_version", 0, "The version for inferencing.")
+tf.app.flags.DEFINE_integer("check_version", 0, "The version for continuing training or for inferencing.")
 tf.app.flags.DEFINE_boolean("log_parameters", True, "Set to True to show the parameters")
-tf.app.flags.DEFINE_string("inference_path", "", "Set filename of inference, default isscreen")
+tf.app.flags.DEFINE_string("inference_path", "", "Set filename of inference, empty for screen input")
 tf.app.flags.DEFINE_string("PMI_path", "./PMI", "PMI director.") 
 tf.app.flags.DEFINE_integer("keywords_per_sentence", 12, "How many keywords will be included")
-tf.app.flags.DEFINE_boolean("question_data", True, "Determine whether to use question data.")
+tf.app.flags.DEFINE_boolean("question_data", True, "(Deprecated, please set to True)An unused option in the final version.")
 FLAGS = tf.app.flags.FLAGS
 
 def load_data(path, fname):
@@ -52,6 +52,9 @@ def build_vocab(path, data):
         print("Creating vocabulary...")
         vocab = {}
 
+    #It was a bad attempt, just ignore the following codes.
+    #question_classifier and classified_data won't be used when running
+        
         #build classifier
         question_classifier = {}
         question_classifier[question_words[0]] = 0
@@ -95,6 +98,7 @@ def build_vocab(path, data):
                     if question_classifier[token] != -1:
                         classified_data[question_classifier[token]].append(pair)
                         #could a pair in several chassified_data's conmponents
+
         vocab_list = _START_VOCAB + question_words + sorted(vocab, key=vocab.get, reverse=True) 
         if len(vocab_list) > FLAGS.symbols:
             vocab_list = vocab_list[:FLAGS.symbols]
@@ -135,7 +139,7 @@ def build_vocab(path, data):
     else:
         return vocab_list, embed, question_words, data
 
-def load_PMI(PMItype): #added by wys, PMItype = noun, verb, all
+def load_PMI(PMItype): #added by wys, PMItype = "noun", "verb", "all"
     print "loading PMI:"
     keywords_list = []
     keywords_file = open("%s/%s.txt" % (FLAGS.PMI_path, PMItype), 'r')
@@ -319,8 +323,8 @@ with tf.Session(config=config) as sess:
         if FLAGS.log_parameters:
             model.print_parameters()
 
-        if FLAGS.inference_version > 0:
-            model_path = '%s/checkpoint-%08d' % (FLAGS.train_dir, FLAGS.inference_version)
+        if FLAGS.check_version > 0:
+            model_path = '%s/checkpoint-%08d' % (FLAGS.train_dir, FLAGS.check_version)
             print("Reading model parameters from %s" % FLAGS.train_dir)
             model.saver.restore(sess, model_path)
             model.symbol2index.init.run()
@@ -375,10 +379,10 @@ with tf.Session(config=config) as sess:
                 vocab=vocab,
                 embed=embed)
 
-        if FLAGS.inference_version == 0:
+        if FLAGS.check_version == 0:
             model_path = tf.train.latest_checkpoint(FLAGS.train_dir)
         else:
-            model_path = '%s/checkpoint-%08d' % (FLAGS.train_dir, FLAGS.inference_version)
+            model_path = '%s/checkpoint-%08d' % (FLAGS.train_dir, FLAGS.check_version)
         print('restore from %s' % model_path)
         model.saver.restore(sess, model_path)
         model.symbol2index.init.run()
@@ -415,6 +419,6 @@ with tf.Session(config=config) as sess:
                 st, ed = ed, ed+FLAGS.batch_size
                 tot = tot + 1
                 print tot
-            with open(FLAGS.inference_path+'.out'+str(FLAGS.inference_version), 'w') as f:
+            with open(FLAGS.inference_path+'.out'+str(FLAGS.check_version), 'w') as f:
                 for p, r in zip(posts, responses):
                     f.writelines('%s\n' % ' '.join(r))

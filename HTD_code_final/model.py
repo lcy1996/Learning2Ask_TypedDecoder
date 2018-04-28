@@ -57,7 +57,7 @@ class Seq2SeqModel(object):
             tf.split(self.responses_target, [decoder_len-1, 1], 1)[0]], 1)   # batch*len
         #delete the last column of responses_target) and add 'GO at the front of it.
         self.decoder_mask = tf.reshape(tf.cumsum(tf.one_hot(self.responses_length-1,
-            decoder_len), reverse=True, axis=1), [-1, decoder_len]) #lcy bacth * len
+            decoder_len), reverse=True, axis=1), [-1, decoder_len]) # bacth * len
 
         print "embedding..."
         # build the embedding table (index to vector)
@@ -106,7 +106,7 @@ class Seq2SeqModel(object):
             self.decoder_output, _, _ = dynamic_rnn_decoder(cell, decoder_fn_train,
                     self.decoder_input, self.responses_length, scope="decoder")
             # calculate the loss of decoder
-            #self.decoder_output = tf.Print(self.decoder_output, [self.decoder_output])
+            # self.decoder_output = tf.Print(self.decoder_output, [self.decoder_output])
             self.decoder_loss, self.log_perplexity = sampled_sequence_loss(self.decoder_output,
                     self.responses_target, self.decoder_mask, self.keyword_tensor, self.word_type)
 
