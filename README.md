@@ -13,6 +13,9 @@ Cite this paper:
 ```
 
 ## Usage:
+### Environment Setting
+To run the codes, you should use python-2.7 and tensorflow-1.0.
+
 ### STD:
 Command ```python main.py {--[option1]=[value1] --[option2]=[value2] ... }```
 
